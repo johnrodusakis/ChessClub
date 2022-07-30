@@ -69,6 +69,7 @@ public class ChessBoard : MonoBehaviour
     // Multiplayer Logic
     private int playerCount = -1;
     private int currentTeam = -1;
+    private int initialAssignedTeam = -1;
     private bool localGame = true;
     private bool[] playerRematch = new bool[2];
 
@@ -614,7 +615,6 @@ public class ChessBoard : MonoBehaviour
         SpawnAllPieces();
         PositionAllPieces();
         isWhiteTurn = true;
-        // surrenderedTeam = -1;
 
     }
     public void OnMenuButton()
@@ -1114,10 +1114,10 @@ public class ChessBoard : MonoBehaviour
 
         // Assign a team
         currentTeam = nw.AssignedTeam;
-
+        initialAssignedTeam = nw.AssignedTeam;
         // Debug.Log($"My assigned team is {nw.AssignedTeam}");
 
-        if(localGame)
+        if (localGame)
         {
             currentTeam = 0;
             Server.Instance.BroadCast(new NetStartGame());
@@ -1140,13 +1140,6 @@ public class ChessBoard : MonoBehaviour
     private void OnEndGameClient(NetMessage msg)
     {
         FindObjectOfType<GameManager>().OnResumeButtonClicked();
-
-        // NetSurrender ns = new NetSurrender();
-        // 
-        // ns.teamId = currentTeam == 0 ? 1 : 0;
-        // ns.wantSurrender = 1;
-
-        // Client.Instance.SendToServer(ns);
 
         Debug.Log("SURRENDER: " + surrenderedTeam);
 
@@ -1233,7 +1226,8 @@ public class ChessBoard : MonoBehaviour
 
         // Set the boolean for surrender
         playerSurrender[ns.teamId] = ns.wantSurrender == 1;
-        surrenderedTeam = ns.teamId;
+        // surrenderedTeam = ns.teamId;
+        surrenderedTeam = initialAssignedTeam;
     }
     private void OnTimerClient(NetMessage msg)
     {
